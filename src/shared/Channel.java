@@ -2,10 +2,6 @@ package shared;
 
 import java.util.HashSet;
 
-/**
- * TODO make these SEND to the client.... Not really that important right now.
- *
- */
 public class Channel implements java.io.Serializable{
 	private static final long serialVersionUID = -6475042971272026933L;
 	private HashSet<SimpleClient> clients = new HashSet<SimpleClient>();
@@ -20,7 +16,6 @@ public class Channel implements java.io.Serializable{
 	public void addClient(SimpleClient c){
 		this.clients.add(c);
 		System.out.println("Added client "+c.getDisplayName());
-		// TODO make sure to notify all other clients in channel
 	}
 	
 	public void removeClient(SimpleClient c){
@@ -35,6 +30,9 @@ public class Channel implements java.io.Serializable{
 		clients.remove(temp);
 	}
 	
+	public String toString() {
+		return title;
+	}
 	public String getTitle() {
 		return title;
 	}
@@ -47,5 +45,41 @@ public class Channel implements java.io.Serializable{
 	public void setChannelId(int channelId) {
 		this.channelId = channelId;
 	}
+	
+	/* package client;
+	
+	/**
+	 * Now that I think about this I don't think this should be on the client...
+	 *
+	 
+	public class Channel {
+		@Override
+		public String toString() {
+			return title;
+		}
+		private String title = null;
+		private int channelId = 0;
+		
+		public Channel(String t, int i){
+			title = t;
+			channelId=i;
+		}
+		
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public int getChannelId() {
+			return channelId;
+		}
+		public void setChannelId(int channelId) {
+			this.channelId = channelId;
+		}
+		
+	}
+	*/
+
 	
 }

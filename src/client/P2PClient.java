@@ -42,6 +42,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 	private Client client;
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
+	
 	private JFrame frame = new JFrame("P2P Client");
 	private JTextField textField = new JTextField(40);
 	private JTextArea messageArea = new JTextArea(8, 40);
@@ -89,6 +90,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 		frame.add(listScrollPane, BorderLayout.WEST);
 		frame.add(buttonPane, BorderLayout.SOUTH);
 		frame.pack();
+		System.out.println(frame.getComponents().length);
 
 		// Add Listeners for the textField
 		textField.addActionListener(new ActionListener() {
