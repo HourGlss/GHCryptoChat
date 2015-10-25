@@ -26,17 +26,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
 
 import shared.Channel;
-import shared.SimpleClient;
+import shared.Client;
 
 
 /*
- * this is the client Gui. Has everything required. This doesn't support P2P yet at
+ * Has everything required. This doesn't support P2P yet at
  * all. Failure.
  */
 public class P2PClient extends JPanel implements ListSelectionListener {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2598998269263257122L;
 	private String ipToUse = "127.0.0.1";
 	private Client client;
@@ -65,14 +62,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 		frame.getContentPane().add(textField, "North");
 		frame.getContentPane().add(new JScrollPane(messageArea), "Center");		
 		listModel = new DefaultListModel<Channel>();
-//		listModel.addElement(one);
-//		listModel.addElement(two);
-//		listModel.addElement(thr);
 		list = new JList<Channel>(listModel);
-//		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		list.setSelectedIndex(0);
-//		list.addListSelectionListener(this);
-//		list.setVisibleRowCount(5);
 		JScrollPane listScrollPane = new JScrollPane(list);
 		joinButton = new JButton(joinString);
 		joinButton.setActionCommand(joinString);
@@ -93,10 +83,18 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 		textField.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Sending: "+textField.getText());
+				String input = textField.getText();
+				System.out.println("Sending: "+input);
 				try {
-					out.writeObject("MESSAGE"+textField.getText());
-					out.flush();
+					if(!input.startsWith("/")){
+						out.writeObject("MESSAGE"+input);
+						out.flush();
+					}else{
+						input = input.substring(1);
+						if(input.equals("info")){
+							messageArea.append(client.toString());
+						}
+					}
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -204,11 +202,11 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 						line = (String)obj;
 						if (line.startsWith("CLIENT")) {
 							System.out.println("Server is sending me a client.");
-							SimpleClient c = (SimpleClient) in.readObject();
+							Client c = (Client) in.readObject();
 							System.out.println(c.getDisplayName());
 						}else if (line.startsWith("MESSAGE")) {
 							String message = line.substring(8);
-							if(client.getCurrentChannel() != null){
+							if(client.getChannel() != null){
 								System.out.println("Server Sent incoming message: "+message);
 								messageArea.append(message + "\n");
 							}else{
@@ -252,7 +250,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 			//This method can be called only if
 			//there's a valid selection
 			//so go ahead and remove whatever's selected.
-			client.setCurrentChannel(list.getSelectedValue());
+			client.setChannel(list.getSelectedValue());
 			channelName.setText(list.getSelectedValue().getTitle());
 			textField.setEditable(true);
 			//System.out.println("Joining "+client.getCurrentChannel().getTitle() +" - "+client.getCurrentChannel().getChannelId());
@@ -272,6 +270,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 	}
 
 	public static void main(String[] args) {
-		new Client();
+		P2PClient p = new P2PClient(new Client());
+		p.run();
 	}
 }

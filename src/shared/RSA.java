@@ -1,4 +1,4 @@
-package client;
+package shared;
 
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -88,6 +88,10 @@ public class RSA {
 
 	public PublicKey getPublicKey() {
 		return pub;
+	}
+	
+	public void setPublicKey(PublicKey pub) {
+		this.pub = pub;
 	}
 	
 	public static void main(String[] args){

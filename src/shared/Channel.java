@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public class Channel implements java.io.Serializable{
 	private static final long serialVersionUID = -6475042971272026933L;
-	private HashSet<SimpleClient> clients = new HashSet<SimpleClient>();
+	private HashSet<Client> clients = new HashSet<Client>();
 	private String title = null;
 	private int channelId = 0;
 	
@@ -13,14 +13,14 @@ public class Channel implements java.io.Serializable{
 		channelId=i;
 	}
 	
-	public void addClient(SimpleClient c){
+	public void addClient(Client c){
 		this.clients.add(c);
 		System.out.println("Added client "+c.getDisplayName());
 	}
 	
-	public void removeClient(SimpleClient c){
-		SimpleClient[] clientList = clients.toArray(new SimpleClient[0]);
-		SimpleClient temp = null;
+	public void removeClient(Client c){
+		Client[] clientList = clients.toArray(new Client[0]);
+		Client temp = null;
 		for(int x = 0; x<clientList.length;x++){
 			if(c.getPublicKey().equals(clientList[x].getPublicKey())){
 				temp = clientList[x];

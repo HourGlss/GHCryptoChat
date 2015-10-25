@@ -4,32 +4,45 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.security.PublicKey;
+import java.util.Random;
+
+import client.P2PClient;
 /*
  * What the server needs for each client. I keep it very simple.
  */
-public class SimpleClient implements java.io.Serializable{
+public class Client implements java.io.Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6211744576031189024L;
 	private String displayName = null;
+	private Random random = new Random();
+	private int uid = showRandomInteger(random);
 	private PublicKey pub= null;
 	private InetAddress ip= null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
-	private int channelId;
-	
-	
-	public SimpleClient(){
+	private Channel channel;
+	private RSA rsa = new RSA();
 
+	private int showRandomInteger(Random aRandom){
+
+		long range = (long)999999 - (long)100000 + 1;
+		// compute a fraction of the range, 0 <= frac < range
+		long fraction = (long)(range * aRandom.nextDouble());
+		int randomNumber =  (int)(fraction + 100000);   
+		return randomNumber;
+	}
+	
+	public Client(){
+	
 	}
 
-	public SimpleClient(InetAddress ip,String displayName,PublicKey publicKey){
+	public Client(InetAddress ip,String displayName,PublicKey publicKey){
 		this.ip = ip;
 		this.displayName = displayName;
 		this.pub = publicKey;
-
 	}
 
 
@@ -58,12 +71,12 @@ public class SimpleClient implements java.io.Serializable{
 		this.displayName = displayName;
 	}
 
-	public int getChannelId() {
-		return channelId;
+	public Channel getChannel() {
+		return channel;
 	}
 
-	public void setChannelId(int channelId) {
-		this.channelId = channelId;
+	public void setChannel(Channel channel) {
+		this.channel = channel;
 	}
 
 	public ObjectInputStream getIn() {
@@ -86,7 +99,7 @@ public class SimpleClient implements java.io.Serializable{
 	public String toString() {
 		return "Client [displayName=" + displayName + ", pub=" + pub.toString() + 
 				", ip=" + ip.toString() + ", out=" + out.toString() + 
-				", in=" + in.toString()	+ ", channelId=" + channelId + "]";
+				", in=" + in.toString()	+ ", channel=" + channel.toString() + "]";
 	}
 
 	public boolean equals(Object obj) {
@@ -97,7 +110,7 @@ public class SimpleClient implements java.io.Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SimpleClient other = (SimpleClient) obj;
+		Client other = (Client) obj;
 		if (ip == null) {
 			if (other.ip != null)
 				return false;
@@ -106,4 +119,30 @@ public class SimpleClient implements java.io.Serializable{
 		return true;
 	}
 
+	public int getUid() {
+		return uid;
+	}
+	/**
+	 * @deprecated use getChannel() instead.
+	 * @return
+	 */
+	public Channel getCurrentChannel() {
+		return channel;
+	}
+
+	/**
+	 * @deprecated use setChannel() instead.
+	 * @param currentChannel
+	 */
+	public void setCurrentChannel(Channel currentChannel) {
+		this.channel = currentChannel;
+	}
+
+	public RSA getRSA() {
+		return rsa;
+	}
+
+	public void setRSA(RSA rsa) {
+		this.rsa = rsa;
+	}
 }

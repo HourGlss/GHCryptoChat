@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import shared.Channel;
-import shared.SimpleClient;
+import shared.Client;
 
 /*
  * This is currently the server. It doesn't act anything like the server I want.
@@ -21,7 +21,7 @@ import shared.SimpleClient;
  */
 public class P2PServer {
 	private static final int PORT = 9001;
-	private static List<SimpleClient> clients = new ArrayList<SimpleClient>();
+	private static List<Client> clients = new ArrayList<Client>();
 	private static List<Channel> channels = new ArrayList<Channel>();
 
 	private void run() throws IOException{
@@ -61,7 +61,7 @@ public class P2PServer {
 	}
 
 	private static class Handler extends Thread {
-		private SimpleClient internalClient;
+		private Client internalClient;
 		private Socket socket;
 
 		public Handler(Socket socket) {
@@ -82,9 +82,9 @@ public class P2PServer {
 		public void run() {
 			try {
 				System.out.println("Setup the Client");
-				internalClient = new SimpleClient();
+				internalClient = new Client();
 				internalClient.setIp(socket.getInetAddress());
-				internalClient.setChannelId(0);
+				internalClient.setChannel(null);
 				internalClient.setOut(new ObjectOutputStream(socket.getOutputStream()));
 				internalClient.getOut().flush();
 				internalClient.setIn(new ObjectInputStream(socket.getInputStream()));
@@ -104,7 +104,7 @@ public class P2PServer {
 						internalClient.getOut().flush();
 					}
 					System.out.println("Flushed the submit name");
-					for(SimpleClient cl : clients) {
+					for(Client cl : clients) {
 						if (cl.getIp().equals(internalClient.getIp())) {
 							//TODO THIS IS DISABLED FOR TESTING USING LOCALHOST
 							//uniqueClient = false;
@@ -184,11 +184,26 @@ public class P2PServer {
 								if(input.startsWith("CHANNEL")){
 									System.out.println("User has sent request to join channel");
 									int chanid = Integer.parseInt(input.substring(7, input.length()));
-
+									Channel channelToChangeTo = null;
+									for(Channel channel : channels){
+										if(channel.getChannelId() == chanid){
+											channelToChangeTo = channel;
+											break;
+										}
+									}
+									if(channelToChangeTo == null){
+										//Fuck you hacker.
+										//TODO I'm sure this isn't smart
+										socket.close();
+									}
+									internalClient.setChannel(channelToChangeTo);
+									//2 things to do
+									//Send internal client details to all clients currently in the channel
+									//send all details
 									//if the client is in a channel and joins a channel
-									if(internalClient.getChannelId() !=0 ){
-										for(SimpleClient c : clients){
-											if(c.getChannelId() == internalClient.getChannelId() &&
+									if(internalClient.getChannel().getChannelId() !=0 ){
+										for(Client c : clients){
+											if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId() &&
 													!c.getDisplayName().equals(internalClient.getDisplayName())){
 												try {
 													c.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + " has left the channel.");
@@ -199,10 +214,10 @@ public class P2PServer {
 											}
 										}
 									}
-									System.out.println("changing clients channel to "+chanid);
-									internalClient.setChannelId(chanid);
-									for(SimpleClient c : clients){
-										if(c.getChannelId() == internalClient.getChannelId() &&
+									System.out.println("changing clients channel to "+channelToChangeTo.getChannelId());
+									
+									for(Client c : clients){
+										if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId() &&
 												!c.getDisplayName().equals(internalClient.getDisplayName())){
 											try {
 												c.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + " has joined the channel.");
@@ -215,9 +230,9 @@ public class P2PServer {
 								}
 								if(input.startsWith("MESSAGE")){
 									System.out.println("User has sent incoming message");
-									for (SimpleClient cl: clients) {
-										if(cl.getChannelId() !=0 &&
-												internalClient.getChannelId() == cl.getChannelId()){
+									for (Client cl: clients) {
+										if(cl.getChannel().getChannelId() !=0 &&
+												internalClient.getChannel().getChannelId() == cl.getChannel().getChannelId()){
 
 											cl.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + ": " + input.substring(7));
 											cl.getOut().flush();
@@ -235,8 +250,8 @@ public class P2PServer {
 				// This client is going down!  Remove its name and its print
 				// writer from the sets, and close its socket.
 				clients.remove(internalClient);
-				for(SimpleClient c : clients){
-					if(c.getChannelId() == internalClient.getChannelId()){
+				for(Client c : clients){
+					if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId()){
 						try {
 							c.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + " has disconnected from server.");
 							c.getOut().flush();
