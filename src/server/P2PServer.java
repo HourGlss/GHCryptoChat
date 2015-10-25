@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import shared.Channel;
 import shared.SimpleClient;
 
 /*
@@ -21,6 +22,7 @@ import shared.SimpleClient;
 public class P2PServer {
 	private static final int PORT = 9001;
 	private static List<SimpleClient> clients = new ArrayList<SimpleClient>();
+	private static List<Channel> channels = new ArrayList<Channel>();
 
 	private void run() throws IOException{
 		ServerSocket listener = null;
@@ -38,10 +40,22 @@ public class P2PServer {
 
 
 
+	private void setupChannels() {
+		Channel one = new Channel("Lobby", 1);
+		Channel two = new Channel("Not Lobby", 2);
+		Channel thr = new Channel("Off-Topic", 3);
+		channels.add(one);
+		channels.add(two);
+		channels.add(thr);
+	}
+
+
+
 	public static void main(String[] args) throws Exception {
 		System.out.println("The chat server is running.");
 
 		P2PServer ps = new P2PServer();
+		ps.setupChannels();
 		ps.run();
 
 	}
@@ -80,11 +94,19 @@ public class P2PServer {
 					System.out.println("Giving user their name");
 					String internalClientName = generateDisplayName();
 					internalClient.setDisplayName(internalClientName);
-					internalClient.getOut().writeObject("NAME"+internalClientName);
+					internalClient.getOut().writeObject("START"+internalClientName);
 					internalClient.getOut().flush();
+					//SERIALIZABLE WORKS HERE YESSS!!!
+					for(Channel chan : channels){
+						internalClient.getOut().writeObject("CHANINFO");
+						internalClient.getOut().flush();
+						internalClient.getOut().writeObject(chan);
+						internalClient.getOut().flush();
+					}
 					System.out.println("Flushed the submit name");
 					for(SimpleClient cl : clients) {
 						if (cl.getIp().equals(internalClient.getIp())) {
+							//TODO THIS IS DISABLED FOR TESTING USING LOCALHOST
 							//uniqueClient = false;
 						}
 					}

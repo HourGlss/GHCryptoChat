@@ -65,17 +65,14 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 		frame.getContentPane().add(textField, "North");
 		frame.getContentPane().add(new JScrollPane(messageArea), "Center");		
 		listModel = new DefaultListModel<Channel>();
-		Channel one = new Channel("Lobby", 1);
-		Channel two = new Channel("Not Lobby", 2);
-		Channel thr = new Channel("Off-Topic", 3);
-		listModel.addElement(one);
-		listModel.addElement(two);
-		listModel.addElement(thr);
+//		listModel.addElement(one);
+//		listModel.addElement(two);
+//		listModel.addElement(thr);
 		list = new JList<Channel>(listModel);
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setSelectedIndex(0);
-		list.addListSelectionListener(this);
-		list.setVisibleRowCount(5);
+//		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		list.setSelectedIndex(0);
+//		list.addListSelectionListener(this);
+//		list.setVisibleRowCount(5);
 		JScrollPane listScrollPane = new JScrollPane(list);
 		joinButton = new JButton(joinString);
 		joinButton.setActionCommand(joinString);
@@ -158,11 +155,23 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 					if(obj.getClass() == nameInput.getClass()) {
 
 						nameInput = (String)obj;
-						if (nameInput.startsWith("NAME")) {
+						if (nameInput.startsWith("START")) {
 							System.out.println("Server has assigned my name.");
 							client.setDisplayName(nameInput.substring(4));
 							frame.setTitle(frame.getTitle() + " "+client.getDisplayName());
-						} else if (nameInput.startsWith("RSAPUB")) {
+						} else if (nameInput.startsWith("CHANINFO")) {
+							
+							Channel channelToAdd = (Channel)in.readObject();
+							listModel.addElement(channelToAdd);
+							if(listModel.size() > 0){
+								list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+								list.setSelectedIndex(0);
+								list.addListSelectionListener(this);
+								list.setVisibleRowCount(5);
+							}
+							System.out.println("Adding a channel: "+channelToAdd.toString());
+							frame.repaint();
+						}else if (nameInput.startsWith("RSAPUB")) {
 							System.out.println("Server has asked for my RSAPUB and and I am sending it to server.");
 							out.writeObject(client.getRSA().getPublicKey());
 							out.flush();
