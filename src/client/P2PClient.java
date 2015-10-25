@@ -2,6 +2,8 @@ package client;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -51,56 +53,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 
 	public P2PClient(Client c) {
 		client = c;
-		//Setup the Gui
-		frame.setTitle(frame.getTitle() + " NAME");
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		textField.setEditable(false);
-		textField.setText("Join a channel to begin!");
-		messageArea.setEditable(false);
-		DefaultCaret caret = (DefaultCaret) messageArea.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		frame.getContentPane().add(textField, "North");
-		frame.getContentPane().add(new JScrollPane(messageArea), "Center");		
-		listModel = new DefaultListModel<Channel>();
-		list = new JList<Channel>(listModel);
-		JScrollPane listScrollPane = new JScrollPane(list);
-		joinButton = new JButton(joinString);
-		joinButton.setActionCommand(joinString);
-		joinButton.addActionListener(new JoinListener());
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane,
-				BoxLayout.LINE_AXIS));
-		buttonPane.add(joinButton);
-		buttonPane.add(channelName);
-		buttonPane.add(new JSeparator(SwingConstants.VERTICAL));
-		channelName.setVerticalTextPosition(JLabel.BOTTOM);
-		frame.add(listScrollPane, BorderLayout.WEST);
-		frame.add(buttonPane, BorderLayout.SOUTH);
-		frame.pack();
-		System.out.println(frame.getComponents().length);
-
-		// Add Listeners for the textField
-		textField.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				String input = textField.getText();
-				System.out.println("Sending: "+input);
-				try {
-					if(!input.startsWith("/")){
-						out.writeObject("MESSAGE"+input);
-						out.flush();
-					}else{
-						input = input.substring(1);
-						if(input.equals("info")){
-							messageArea.append("Your UID "+client.getUID());
-						}
-					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				textField.setText("");
-			}
-		});
 	}
 
 	@SuppressWarnings("unused")
@@ -174,7 +126,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 							//TODO for production remove this and next line.
 							//frame.dispose();
 							break;
-						}else{
+						}{
 							System.out.println("Server has sent me the line "+nameInput);
 						}
 					}
@@ -189,15 +141,28 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				;
 				if(obj != null){
 					if(obj.getClass() == line.getClass()) {
 						//Get some information on the client.
 						line = (String)obj;
 						if (line.startsWith("CLIENT")) {
 							System.out.println("Server is sending me a client.");
-							Client c = (Client) in.readObject();
-							System.out.println(c.getDisplayName());
+							Object objectToTest = null;
+							try {
+								objectToTest = in.readObject();
+							} catch (ClassNotFoundException e) {
+								e.printStackTrace();
+							}
+							if(objectToTest != null){
+								if(objectToTest.getClass() == client.getClass()) {
+									Client cyo = (Client) objectToTest;
+									System.out.println("Got a Client from server");
+									System.out.println(cyo.toString());
+									client.getChannel().addClient(cyo);
+								}
+							}
+//							Client incomingClient = (Client) in.readObject();
+//							System.out.println(incomingClient.getDisplayName());
 						}else if (line.startsWith("MESSAGE")) {
 							String message = line.substring(8);
 							if(client.getChannel() != null){
@@ -256,7 +221,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 				System.out.println("client is null");
 			}
 			try {
-				out.writeObject("CHANNEL"+client.getCurrentChannel().getChannelId());
+				out.writeObject("CHANNEL"+client.getChannel().getChannelId());
 				out.flush();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -266,6 +231,89 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 
 	public static void main(String[] args) {
 		P2PClient p = new P2PClient(new Client());
+		p.setupGui();
 		p.run();
+	}
+
+	private void setupGui() {
+		frame.setTitle(frame.getTitle() + " NAME");
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		textField.setEditable(false);
+		textField.setText("Join a channel to begin!");
+		messageArea.setEditable(false);
+		DefaultCaret caret = (DefaultCaret) messageArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		frame.getContentPane().add(textField, "North");
+		frame.getContentPane().add(new JScrollPane(messageArea), "Center");		
+		listModel = new DefaultListModel<Channel>();
+		list = new JList<Channel>(listModel);
+		JScrollPane listScrollPane = new JScrollPane(list);
+		joinButton = new JButton(joinString);
+		joinButton.setActionCommand(joinString);
+		joinButton.addActionListener(new JoinListener());
+		JPanel buttonPane = new JPanel();
+		buttonPane.setLayout(new BoxLayout(buttonPane,
+				BoxLayout.LINE_AXIS));
+		buttonPane.add(joinButton);
+		buttonPane.add(channelName);
+		buttonPane.add(new JSeparator(SwingConstants.VERTICAL));
+		channelName.setVerticalTextPosition(JLabel.BOTTOM);
+		frame.add(listScrollPane, BorderLayout.WEST);
+		frame.add(buttonPane, BorderLayout.SOUTH);
+		frame.pack();
+
+		// Add Listeners for the textField
+		textField.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				textField.setText("");
+				
+			}
+			
+		});
+		textField.addActionListener(new ActionListener() {
+			
+
+			
+			public void actionPerformed(ActionEvent e) {
+				String input = textField.getText();
+				System.out.println("Sending: "+input);
+				try {
+					if(!input.startsWith("/")){
+						out.writeObject("MESSAGE"+input);
+						out.flush();
+					}else{
+						input = input.substring(1);
+						if(input.equals("info")){
+							messageArea.append("Your UID "+client.getUID());
+						}
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				textField.setText("");
+			}
+		});
 	}
 }

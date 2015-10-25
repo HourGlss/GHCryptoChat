@@ -19,12 +19,13 @@ public class Client implements java.io.Serializable{
 	private String displayName = null;
 	private Random random = new Random();
 	private int uid = showRandomInteger(random);
-	private PublicKey pub= null;
+	
 	private InetAddress ip= null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 	private Channel channel;
 	private RSA rsa = new RSA();
+	private PublicKey pub= rsa.getPublicKey();
 
 	private int showRandomInteger(Random aRandom){
 
@@ -46,6 +47,31 @@ public class Client implements java.io.Serializable{
 	}
 
 
+
+	public Client(Client i) {
+		this.displayName = i.displayName;
+		this.uid = i.uid;
+		this.pub = i.pub;
+		this.ip = i.ip;
+		this.channel = i.channel;
+		
+		this.rsa = null;
+		this.random = null;
+		this.in = null;
+		this.out=null;
+	}
+
+	@Override
+	public String toString() {
+		if(rsa!=null){
+		return "Client [displayName=" + displayName + ", random=" + random + ", uid=" + uid + ", pub=" + pub.toString() + ", ip="
+				+ ip.toString() + ", out=" + out.toString() + ", in=" + in.toString() + ", channel=" + channel.toString() + ", rsa=" + rsa.toString() + "]";
+		}else{
+			return "Client [displayName=" + displayName + ", uid=" + uid + ", pub=" + pub + ", ip="
+					+ ip + ", channel=" + channel + "]";
+		}
+		
+	}
 
 	public InetAddress getIp() {
 		return ip;
@@ -95,15 +121,7 @@ public class Client implements java.io.Serializable{
 		this.out = out;
 	}
 
-	@Override
-	public String toString() {
-		return "Client [displayName=" + displayName + ", pub=" + pub.toString() + 
-				", ip=" + ip.toString() + ", out=" + out.toString() + 
-				", in=" + in.toString()	+ ", channel=" + channel.toString() + "]";
-	}
-
 	public boolean equals(Object obj) {
-		System.out.println("Client.equals()");
 		if (this == obj)
 			return true;
 		if (obj == null)

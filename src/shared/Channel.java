@@ -7,6 +7,7 @@ public class Channel implements java.io.Serializable{
 	private HashSet<Client> clients = new HashSet<Client>();
 	private String title = null;
 	private int channelId = 0;
+	private int size=0;
 	
 	public Channel(String t, int i){
 		title = t;
@@ -14,11 +15,14 @@ public class Channel implements java.io.Serializable{
 	}
 	
 	public void addClient(Client c){
+		size++;
 		this.clients.add(c);
 		System.out.println("Added client "+c.getDisplayName());
+
 	}
 	
 	public void removeClient(Client c){
+		size--;
 		Client[] clientList = clients.toArray(new Client[0]);
 		Client temp = null;
 		for(int x = 0; x<clientList.length;x++){
@@ -45,41 +49,9 @@ public class Channel implements java.io.Serializable{
 	public void setChannelId(int channelId) {
 		this.channelId = channelId;
 	}
-	
-	/* package client;
-	
-	/**
-	 * Now that I think about this I don't think this should be on the client...
-	 *
-	 
-	public class Channel {
-		@Override
-		public String toString() {
-			return title;
-		}
-		private String title = null;
-		private int channelId = 0;
-		
-		public Channel(String t, int i){
-			title = t;
-			channelId=i;
-		}
-		
-		public String getTitle() {
-			return title;
-		}
-		public void setTitle(String title) {
-			this.title = title;
-		}
-		public int getChannelId() {
-			return channelId;
-		}
-		public void setChannelId(int channelId) {
-			this.channelId = channelId;
-		}
-		
-	}
-	*/
 
+	public int getSize() {
+		return size;
+	}
 	
 }

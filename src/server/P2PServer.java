@@ -97,10 +97,10 @@ public class P2PServer {
 					internalClient.getOut().writeObject("START"+internalClientName);
 					internalClient.getOut().flush();
 					//SERIALIZABLE WORKS HERE YESSS!!!
-					for(Channel chan : channels){
+					for(Channel channelToSend : channels){
 						internalClient.getOut().writeObject("CHANINFO");
 						internalClient.getOut().flush();
-						internalClient.getOut().writeObject(chan);
+						internalClient.getOut().writeObject(channelToSend);
 						internalClient.getOut().flush();
 					}
 					System.out.println("Flushed the submit name");
@@ -156,7 +156,7 @@ public class P2PServer {
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
-					
+
 					if(objectToCompare != null){
 						if(objectToCompare.getClass() == uniqueID.getClass()) {
 							uniqueID = (int)objectToCompare;
@@ -168,7 +168,7 @@ public class P2PServer {
 					}
 					internalClient.setIp(socket.getInetAddress());
 					internalClient.setOut(internalClient.getOut());
-					
+
 					System.out.println(internalClient.getDisplayName() +" has connected w/ UID "+internalClient.getUID());
 					if(clients.size() == 0){
 						System.out.println("clients size() is zero");
@@ -206,11 +206,13 @@ public class P2PServer {
 									for(Channel channel : channels){
 										if(channel.getChannelId() == chanid){
 											channelToChangeTo = channel;
+											Client toAdd = new Client(internalClient);
+											channelToChangeTo.addClient(toAdd);
 											break;
 										}
 									}
 									if(channelToChangeTo == null){
-										//Fuck you hacker.
+										//Security?
 										//TODO I'm sure this isn't smart
 										socket.close();
 									}
@@ -219,25 +221,17 @@ public class P2PServer {
 									//Send internal client details to all clients currently in the channel
 									//send all details from currently connected clients to internal client
 									//if the client is in a channel and joins a channel
-									if(internalClient.getChannel().getChannelId() !=0 ){
-										for(Client c : clients){
-											if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId() &&
-													!c.getDisplayName().equals(internalClient.getDisplayName())){
-												try {
-													c.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + " has left the channel.");
-													c.getOut().flush();
-												} catch (IOException e) {
-													e.printStackTrace();
-												}
-											}
-										}
-									}
 									System.out.println("changing clients channel to "+channelToChangeTo.getChannelId());
-									
+
 									for(Client c : clients){
-										if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId() &&
+										if(c.getChannel() != null && c.getChannel().getChannelId() == internalClient.getChannel().getChannelId() &&
 												!c.getDisplayName().equals(internalClient.getDisplayName())){
 											try {
+												c.getOut().writeObject("CLIENT");
+												c.getOut().flush();
+												Client toSend = new Client(internalClient);
+												c.getOut().writeObject(toSend);
+												c.getOut().flush();
 												c.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + " has joined the channel.");
 												c.getOut().flush();
 											} catch (IOException e) {
@@ -266,8 +260,16 @@ public class P2PServer {
 				e.printStackTrace();
 			} finally {
 				// This client is going down!  Remove its name and its print
-				// writer from the sets, and close its socket.
+				// writer from the sets, and close its socket.\
+
 				clients.remove(internalClient);
+				if(internalClient.getChannel() != null){
+					System.out.println("Removing client from channel "+internalClient.getChannel());
+					internalClient.getChannel().removeClient(internalClient);
+					for(Channel c : channels){
+						System.out.println(c + " "+c.getSize());
+					}
+				}
 				for(Client c : clients){
 					if(c.getChannel().getChannelId() == internalClient.getChannel().getChannelId()){
 						try {
@@ -278,6 +280,7 @@ public class P2PServer {
 						}
 					}
 				}
+
 				try {
 					socket.close();
 				} catch (IOException e) {
