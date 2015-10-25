@@ -92,7 +92,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 					}else{
 						input = input.substring(1);
 						if(input.equals("info")){
-							messageArea.append(client.toString());
+							messageArea.append("Your UID "+client.getUID());
 						}
 					}
 				} catch (IOException e1) {
@@ -110,15 +110,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 				"Enter IP Address of the Server:",
 				"Welcome to the Chatter",
 				JOptionPane.QUESTION_MESSAGE);
-	}
-
-	@SuppressWarnings("unused")
-	private String getAName() {
-		return JOptionPane.showInputDialog(
-				frame,
-				"Choose a screen name:",
-				"Screen name selection",
-				JOptionPane.PLAIN_MESSAGE);
 	}
 
 	public void run() {
@@ -173,11 +164,14 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 							System.out.println("Server has asked for my RSAPUB and and I am sending it to server.");
 							out.writeObject(client.getRSA().getPublicKey());
 							out.flush();
+							out.writeObject(client.getUID());
+							out.flush();
 							System.out.println("--sent");
 							break;
 						}else if(nameInput.startsWith("FAIL")){
 							System.out.println("I am not unique.");
 							unique = false;
+							//TODO for production remove this and next line.
 							//frame.dispose();
 							break;
 						}else{
@@ -224,6 +218,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 			}
 		} catch (IOException e) {
 			System.out.println("Client can't connect to server");
+			//TODO for production remove this and next line.
 			//frame.dispose();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

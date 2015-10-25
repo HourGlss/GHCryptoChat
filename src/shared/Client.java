@@ -119,8 +119,11 @@ public class Client implements java.io.Serializable{
 		return true;
 	}
 
-	public int getUid() {
+	public int getUID() {
 		return uid;
+	}
+	public void setUID(Integer i) {
+		this.uid = i;
 	}
 	/**
 	 * @deprecated use getChannel() instead.

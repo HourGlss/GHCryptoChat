@@ -149,9 +149,27 @@ public class P2PServer {
 							internalClient.setPublicKey(pub); 
 						}
 					}
+					Integer uniqueID = 0;
+					Object objectToCompare = null;
+					try {
+						objectToCompare = internalClient.getIn().readObject();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					
+					if(objectToCompare != null){
+						if(objectToCompare.getClass() == uniqueID.getClass()) {
+							uniqueID = (int)objectToCompare;
+							System.out.println("Setting Clients UID to "+uniqueID);
+							internalClient.setUID(uniqueID);
+						}else{
+							System.out.println("JK what the fuck "+objectToCompare.getClass());
+						}
+					}
 					internalClient.setIp(socket.getInetAddress());
 					internalClient.setOut(internalClient.getOut());
-					System.out.println(internalClient.getDisplayName() +" has connected");
+					
+					System.out.println(internalClient.getDisplayName() +" has connected w/ UID "+internalClient.getUID());
 					if(clients.size() == 0){
 						System.out.println("clients size() is zero");
 						//This is the first client
@@ -199,7 +217,7 @@ public class P2PServer {
 									internalClient.setChannel(channelToChangeTo);
 									//2 things to do
 									//Send internal client details to all clients currently in the channel
-									//send all details
+									//send all details from currently connected clients to internal client
 									//if the client is in a channel and joins a channel
 									if(internalClient.getChannel().getChannelId() !=0 ){
 										for(Client c : clients){
