@@ -15,10 +15,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import shared.Channel;
 import shared.Client;
 
-/*
- * This is currently the server. It doesn't act anything like the server I want.
- * Lot's of TODOS
- */
 public class P2PServer {
 	private static final int PORT = 9001;
 	private static List<Client> clients = new ArrayList<Client>();
@@ -38,8 +34,6 @@ public class P2PServer {
 		}
 	}
 
-
-
 	private void setupChannels() {
 		Channel one = new Channel("Lobby", 1);
 		Channel two = new Channel("Not Lobby", 2);
@@ -49,11 +43,8 @@ public class P2PServer {
 		channels.add(thr);
 	}
 
-
-
 	public static void main(String[] args) throws Exception {
 		System.out.println("The chat server is running.");
-
 		P2PServer ps = new P2PServer();
 		ps.setupChannels();
 		ps.run();
@@ -76,7 +67,6 @@ public class P2PServer {
 				s+= (char)ThreadLocalRandom.current().nextInt(min, max + 1);
 			}
 			return s;
-
 		}
 
 		public void run() {
@@ -243,7 +233,7 @@ public class P2PServer {
 								if(input.startsWith("MESSAGE")){
 									System.out.println("User has sent incoming message");
 									for (Client cl: clients) {
-										if(cl.getChannel().getChannelId() !=0 &&
+										if(cl.getChannel() != null && cl.getChannel().getChannelId() !=0 &&
 												internalClient.getChannel().getChannelId() == cl.getChannel().getChannelId()){
 
 											cl.getOut().writeObject("MESSAGE " + internalClient.getDisplayName() + ": " + input.substring(7));
@@ -259,9 +249,7 @@ public class P2PServer {
 				System.out.println("Making a new socket failed Somewhere\n");
 				e.printStackTrace();
 			} finally {
-				// This client is going down!  Remove its name and its print
-				// writer from the sets, and close its socket.\
-
+				// This client is going down!
 				clients.remove(internalClient);
 				if(internalClient.getChannel() != null){
 					System.out.println("Removing client from channel "+internalClient.getChannel());

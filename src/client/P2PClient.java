@@ -7,7 +7,10 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -26,22 +29,24 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
-
 import shared.Channel;
 import shared.Client;
 
-
-/*
- * Has everything required. This doesn't support P2P yet at
- * all. Failure.
- */
 public class P2PClient extends JPanel implements ListSelectionListener {
+
+	/*
+	 * P2P Stuff ONLY here
+	 */
+	private static final int PORT = 9002;
+	private static List<Client> clients = new ArrayList<Client>();
+	/*
+	 * End P2P Stuff
+	 */
 	private static final long serialVersionUID = -2598998269263257122L;
 	private String ipToUse = "127.0.0.1";
 	private Client client;
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
-	
 	private JFrame frame = new JFrame("P2P Client");
 	private JTextField textField = new JTextField(40);
 	private JTextArea messageArea = new JTextArea(8, 40);
@@ -64,11 +69,49 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 				JOptionPane.QUESTION_MESSAGE);
 	}
 
+	private void server() throws IOException{
+		System.out.println("Setup the server");
+		ServerSocket listener = null;
+		try {
+			listener = new ServerSocket(PORT);
+			while (true) {
+				new Handler(listener.accept()).start();
+			}
+		}  catch (IOException e) {
+			System.out.println("Server already running");
+		}finally {
+			listener.close();
+		}
+	}
+	private static class Handler extends Thread {
+		private Client p2pClient;
+		private Socket p2pSocket;
+
+		public Handler(Socket socket) {
+			this.p2pSocket = socket;
+		}
+
+		public void run() {
+			System.out.println("run on the incoming connections");
+			try {
+				System.out.println("Setup the Client");
+				p2pClient = new Client();
+				p2pClient.setIp(p2pSocket.getInetAddress());
+				p2pClient.setChannel(null);
+				p2pClient.setOut(new ObjectOutputStream(p2pSocket.getOutputStream()));
+				p2pClient.getOut().flush();
+				p2pClient.setIn(new ObjectInputStream(p2pSocket.getInputStream()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	public void run() {
+
 		System.out.println("run");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-
 		// Make connection and initialize streams
 		//ipToUse = getServerAddress();
 		Socket socket = null;
@@ -79,8 +122,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(socket.getInputStream());
-
-
 			//Get some information on the client.
 			//Give the server my RSA pub key
 			boolean unique = true;
@@ -94,14 +135,13 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 				}
 				if(obj != null){
 					if(obj.getClass() == nameInput.getClass()) {
-
 						nameInput = (String)obj;
 						if (nameInput.startsWith("START")) {
 							System.out.println("Server has assigned my name.");
 							client.setDisplayName(nameInput.substring(4));
 							frame.setTitle(frame.getTitle() + " "+client.getDisplayName());
 						} else if (nameInput.startsWith("CHANINFO")) {
-							
+
 							Channel channelToAdd = (Channel)in.readObject();
 							listModel.addElement(channelToAdd);
 							if(listModel.size() > 0){
@@ -161,8 +201,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 									client.getChannel().addClient(cyo);
 								}
 							}
-//							Client incomingClient = (Client) in.readObject();
-//							System.out.println(incomingClient.getDisplayName());
 						}else if (line.startsWith("MESSAGE")) {
 							String message = line.substring(8);
 							if(client.getChannel() != null){
@@ -203,8 +241,8 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 		if (e.getValueIsAdjusting() == false) {
 			joinButton.setEnabled(true);
 		}
-
 	}
+
 	class JoinListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			//This method can be called only if
@@ -264,38 +302,29 @@ public class P2PClient extends JPanel implements ListSelectionListener {
 
 		// Add Listeners for the textField
 		textField.addMouseListener(new MouseListener(){
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-			}
 
+			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				
-			}
 
+			}
 			@Override
 			public void mouseExited(MouseEvent e) {
-				
-			}
 
+			}
 			@Override
 			public void mousePressed(MouseEvent e) {
-				
-			}
 
+			}
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				textField.setText("");
-				
-			}
-			
+
+			}			
 		});
 		textField.addActionListener(new ActionListener() {
-			
-
-			
 			public void actionPerformed(ActionEvent e) {
 				String input = textField.getText();
 				System.out.println("Sending: "+input);
