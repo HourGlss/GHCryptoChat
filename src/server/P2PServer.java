@@ -120,7 +120,7 @@ public class P2PServer {
 					PublicKey pub = null;
 					try {
 						keyGen = KeyPairGenerator.getInstance("RSA");
-						keyGen.initialize(1024);
+						keyGen.initialize(2048);
 						KeyPair key = keyGen.generateKeyPair();
 						pub = key.getPublic();
 					}catch (NoSuchAlgorithmException e) {
@@ -185,7 +185,7 @@ public class P2PServer {
 						} catch (ClassNotFoundException e) {
 							e.printStackTrace();
 						}
-						;
+
 						if(obj1 != null){
 							if(obj1.getClass() == input.getClass()) {
 								input = (String)obj1;
