@@ -63,14 +63,54 @@ public class Client implements java.io.Serializable {
 
     @Override
     public String toString() {
-        if (rsa != null) {
-            return "Client [displayName=" + displayName + ", random=" + random + ", uid=" + uid + ", pub=" + pub.toString() + ", ip="
-                    + ip.toString() + ", out=" + out.toString() + ", in=" + in.toString() + ", channel=" + channel.toString() + ", rsa=" + rsa.toString() + "]";
-        } else {
-            return "Client [displayName=" + displayName + ", uid=" + uid + ", pub=" + pub + ", ip="
-                    + ip + ", channel=" + channel + "]";
+        String ret = "Client [";
+        if(displayName != null){
+            ret += "displayName="+displayName+" ";
+        }else{
+            ret += "displayName=null ";
         }
-
+        if(random != null){
+            ret += "random="+random+" ";
+        }else{
+            ret += "random=null ";
+        }
+        if(uid != 0){
+            ret += "uid="+uid+" ";
+        }else{
+            ret += "uid=0 ";
+        }
+        if(pub != null){
+            ret += "pub="+pub.toString()+" ";
+        }else{
+            ret += "pub=null ";
+        }
+        if(ip != null){
+            ret += "ip="+ip.toString()+" ";
+        }else{
+            ret += "ip=null ";
+        }
+        if(out != null){
+            ret += "out="+out.toString()+" ";
+        }else{
+            ret += "out=null ";
+        }
+        if(in != null){
+            ret += "in="+in.toString()+" ";
+        }else{
+            ret += "in=null ";
+        }
+        if(channel != null){
+            ret += "channel="+channel.toString()+" ";
+        }else{
+            ret += "channel=null ";
+        }
+        if(rsa != null){
+            ret += "rsa="+rsa.toString()+" ";
+        }else{
+            ret += "rsa=null ";
+        }
+        ret += "]";
+        return ret;
     }
 
     public InetAddress getIp() {

@@ -44,7 +44,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
     /*
      * End P2P Stuff
      */
-    private static final long serialVersionUID = -2598998269263257122L;
     private String ipToUse = "127.0.0.1";
     private Client client;
     private ObjectInputStream in;
@@ -258,7 +257,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
             client.setChannel(list.getSelectedValue());
             channelName.setText(list.getSelectedValue().getTitle());
             textField.setEditable(true);
-            System.out.println("Joining "+client.getCurrentChannel().getTitle() +" - "+client.getCurrentChannel().getChannelId());
+            System.out.println("Joining " + client.getCurrentChannel().getTitle() + " - " + client.getCurrentChannel().getChannelId());
             if (out == null) {
                 System.out.println("out is null");
             }
@@ -346,7 +345,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
                     } else {
                         input = input.substring(1);
                         if (input.equals("info")) {
-                            messageArea.append("Your UID " + client.getUID());
+                            messageArea.append("Your Info " + client.toString());
                         }
                     }
                 } catch (IOException e1) {
