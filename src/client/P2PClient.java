@@ -238,6 +238,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
                 socket.close();
 
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
