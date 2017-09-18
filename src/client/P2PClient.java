@@ -61,7 +61,6 @@ public class P2PClient extends JPanel implements ListSelectionListener {
         client = c;
     }
 
-    @SuppressWarnings("unused")
     private String getServerAddress() {
         return JOptionPane.showInputDialog(
                 frame,
@@ -70,6 +69,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
                 JOptionPane.QUESTION_MESSAGE);
     }
 
+    /*
     private void server() throws IOException {
         System.out.println("Setup the server");
         ServerSocket listener = null;
@@ -84,6 +84,7 @@ public class P2PClient extends JPanel implements ListSelectionListener {
             listener.close();
         }
     }
+    */
 
     private static class Handler extends Thread {
         private Client p2pClient;

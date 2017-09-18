@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -184,7 +185,9 @@ public class P2PServer {
                         try {
                             obj1 = internalClient.getIn().readObject();
                         } catch (ClassNotFoundException e) {
-                            System.out.println("Graceful quit!");
+                            System.out.println("Graceful Quit!");
+                        } catch(SocketException e10){
+                            System.out.println("Graceful Quit!");
                         }
 
                         if (obj1 != null) {
