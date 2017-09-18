@@ -36,7 +36,7 @@ public class P2PServer {
 
 	private void setupChannels() {
 		Channel one = new Channel("Lobby", 1);
-		Channel two = new Channel("Not Lobby", 2);
+		Channel two = new Channel("Need Help", 2);
 		Channel thr = new Channel("Off-Topic", 3);
 		channels.add(one);
 		channels.add(two);
