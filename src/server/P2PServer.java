@@ -186,8 +186,10 @@ public class P2PServer {
                             obj1 = internalClient.getIn().readObject();
                         } catch (ClassNotFoundException e) {
                             System.out.println("Graceful Quit!");
+                            break;
                         } catch(SocketException e10){
                             System.out.println("Graceful Quit!");
+                            break;
                         }
 
                         if (obj1 != null) {
